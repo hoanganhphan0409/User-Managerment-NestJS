@@ -14,6 +14,7 @@ import { Repository } from 'typeorm';
 import { Role, User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     @InjectRepository(User) private userRepository: Repository<User>,
+    private redisService: RedisService,
   ) {}
 
   async login(loginDto: LoginDto) {
@@ -41,6 +43,21 @@ export class AuthService {
   async register(newUser: CreateUserDto) {
     const user = await this.userService.createUser(newUser);
     return user;
+  }
+
+  async logout(accessToken: string, refreshToken?: string): Promise<void> {
+    const decoded = this.jwtService.decode(accessToken) as any;
+    const expiresIn = decoded.exp - Math.floor(Date.now() / 1000);
+    if (expiresIn > 0) {
+      await this.redisService.blacklistToken(accessToken, expiresIn);
+    }
+    if (refreshToken) {
+      const decodedRefresh = this.jwtService.decode(refreshToken) as any;
+      const expiresIndRefresh = decodedRefresh.exp - Math.floor(Date.now() / 1000);
+      if (expiresIndRefresh > 0) {
+        await this.redisService.blacklistToken(refreshToken, expiresIndRefresh);
+      }
+    }
   }
 
   async generateToken(payload: any) {

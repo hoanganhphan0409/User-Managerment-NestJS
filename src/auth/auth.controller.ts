@@ -18,9 +18,7 @@ import { UserService } from 'src/user/user.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
     const token = await this.authService.login(loginDto);
@@ -44,8 +42,19 @@ export class AuthController {
 
   @Post('refresh')
   @UseGuards(AuthGuard('jwt-refresh'))
-  async refreshToken(@Body() body: RefreshTokenDto) {
-    const token = await this.authService.refreshToken(body.user_id);
+  async refreshToken(@Request() req) {
+    const user = req.user;
+    const token = await this.authService.refreshToken(user.id);
     return successResponse(token, 'Token đã refresh');
+  }
+
+  @Post('logout')
+  @UseGuards(AuthGuard('jwt'))
+  async logout(@Request() req) {
+    const accessToken = req.headers['authorization']?.replace('Bearer ', '');
+    const refreshToken = req.headers['x-refresh-token']?.toString();
+
+    const response = await this.authService.logout(accessToken, refreshToken);
+    return successResponse(response, 'Đăng xuất thành công');
   }
 }
