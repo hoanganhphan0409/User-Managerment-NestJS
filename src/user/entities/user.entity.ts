@@ -10,7 +10,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
   
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: '' })
   full_name: string;
   
   @Column({ default: '' })
@@ -26,14 +26,14 @@ export class User {
   @Column({ default: '' })
   avatar?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: '' })
   phone_number?: string;
 
   @Column({ default: Role.USER })
   role: Role;
 
-  @Column({ default: true })
-  isActive: boolean;
+  @Column({ default: 'ACTIVE' })
+  status: string;
 
   @CreateDateColumn({ type: 'datetime' })
   created_at: Date;
