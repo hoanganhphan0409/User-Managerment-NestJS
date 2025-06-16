@@ -38,9 +38,9 @@ Mở terminal, cd vào thư mục chứa project và chạy lệnh:
 docker compose up --build
 ```
 
-# 📘 Tài liệu API với Swagger
+## 📘 Tài liệu API với Swagger
 
-Sau khi chạy ứng dụng, có thể mở trình duyệt và truy cập đường dẫn:
+Sau khi chạy ứng dụng, có thể mở trình duyệt và truy cập đường dẫn sau để mở giao diện swagger:
 
 http://localhost:3000/swagger
 
